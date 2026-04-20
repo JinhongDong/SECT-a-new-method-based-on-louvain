@@ -16,23 +16,25 @@ This repository contains the code accompanying the paper **"文章标题."**
 - `main.py`  
   Main entry point of the project.
 
+- `utils.py`  
+  Utility functions that support the main pipeline (e.g., data loading, preprocessing).
 
+- `requirement.txt`  
+  Contains Python package dependencies (Python 3.11.9) required to run the project.
+  
 - `baselines/`  
   Contains baseline methods used for comparison:
   - `fastgreedy.py`: fastgreedy community detection.
   - `GCN.py`: GCN-based community detection.
-  - `lpa.py`: lpa community detection.
+  - `LPA.py`: lpa community detection.
   - `louvain.py`: louvain community detection.
-  - `leiden.py`: leiden community detection
+  - `leiden.py`: leiden community detection.
   - `walktrap.py`: walktrap community detection.
-
-- `utils.py`  
-  Utility functions that support the main pipeline (e.g., data loading, preprocessing).
 
 - `result/`  
   Stores the experiment results:
   - `ARI.xlsx`, `NMI.xlsx`, `Q.xlsx`: Summarized evaluation results (Adjusted Rand Index, Normalized Mutual Information, Modularity Q).
-  - `拓扑结构.xlsx`: 包含6个数据集的拓扑结构描述
+  - `Topological Features.xlsx`: Contains the topological structure descriptions for the 6 datasets.
 ---
 
 ## 🚀 Usage
@@ -40,7 +42,7 @@ This repository contains the code accompanying the paper **"文章标题."**
 To run the main experiment, use the following command format:
 
 ```bash
-python main.py --filename <network_name> 
+python main.py 
 ```
 **Parameters**:
 

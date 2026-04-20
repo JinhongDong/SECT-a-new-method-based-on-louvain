@@ -20,8 +20,8 @@ This repository contains the code accompanying the paper **"文章标题."**
   Utility functions that support the main pipeline (e.g., data loading, preprocessing).
 
 - `requirement.txt`  
-  Contains Python package dependencies (Python 3.11.9) required to run the project.
-  Example:    pip install -r requirements.txt
+  - Contains Python package dependencies (Python 3.11.9) required to run the project.
+  - Example:    pip install -r requirements.txt
   
 - `baselines/`  
   Contains baseline methods used for comparison:

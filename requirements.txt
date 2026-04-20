@@ -1,0 +1,14 @@
+numpy==1.26.4
+scipy==1.17.1
+networkx==3.6.1
+matplotlib==3.10.8
+scikit-learn==1.3.2
+torch==2.1.2+cpu
+torch-geometric==2.7.0
+torch_cluster==1.6.3+pt22cpu
+torch_scatter==2.1.2+pt22cpu
+torch_sparse==0.6.18+pt22cpu
+torch_spline_conv==1.2.2+pt22cpu
+igraph==1.0.0
+python-louvain==0.16
+leidenalg==0.11.0

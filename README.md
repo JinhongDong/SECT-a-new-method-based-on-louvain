@@ -44,26 +44,21 @@ To run the main experiment, use the following command format:
 ```bash
 python main.py 
 ```
-**Parameters**:
-
-- `--filename`
-Name of the network dataset (e.g., tree, lol, etc.)
-
-
 
 **Example**:
 ```bash
-python main.py --filename tree
+python main.py 
 ```
 
-This command uses the tree network.
 
-To reproduce the results of our proposed model and compare it with multiple baselines (CSEA, Node2Vec, LINE, GCN),you can run each baseline individually:
+To reproduce the results of our proposed model and compare it with multiple baselines (louvain, lpa, leiden, GCN,fastgreedy,walktrap),you can run each baseline individually:
 ```bash
 python baselines/louvain.py      # louvain method
 python baselines/lpa.py          # lpa method
 python baselines/leiden.py       # leiden method
 python baselines/GCN.py          # Graph Convolutional Network
+python baselines/fastgreedy.py   # fastgreedy method
+python baselines/walktrap.py     # walktrap method
 ```
 
 ## 📈 Result

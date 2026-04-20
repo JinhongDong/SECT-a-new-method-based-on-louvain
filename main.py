@@ -27,19 +27,20 @@ if __name__ == "__main__":
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)
     """
+
     #tree 
     file_name = "tree"  
     input_dir = os.path.join('.', 'norm_dataset', file_name)
     node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
     edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    embed_n_components = 50
+    embed_n_components = 20
     embed_use_adaptive = True  
-    graph_similarity_threshold = 0.3
+    graph_similarity_threshold = 0.5
     graph_preserve_ratio = 0.4
     graph_max_preserved_edges = 500
-    graph_k_factor = 5  
-    louvain_n_iter = 5
-    louvain_resolution = 1.0
+    graph_k_factor = 10  
+    louvain_n_iter = 10
+    louvain_resolution = 2.0
     louvain_use_weight = False
     optimize_min_size = 3
     optimize_size_ratio = 0.2
@@ -66,8 +67,13 @@ if __name__ == "__main__":
     # optimize_merge_small = True
     # use_grid_search = True
     # max_iterations = 20
+    # composite_score_weights = {
+    #    'ARI': 0.5,
+    #    'NMI': 0.3,
+    #    'modularity_original_graph': 0.2
+    # }
 
-    # g22
+    # g22 ari better
     # file_name = "g22"  
     # input_dir = os.path.join('.', 'norm_dataset', file_name)
     # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
@@ -75,14 +81,34 @@ if __name__ == "__main__":
     # embed_n_components = 50
     # embed_use_adaptive = True  
     # graph_similarity_threshold = 0.5
-    # graph_preserve_ratio = 0.4
-    # graph_max_preserved_edges = 500
+    # graph_preserve_ratio = 0.8
+    # graph_max_preserved_edges = 1000
     # graph_k_factor = 10  
-    # louvain_n_iter = 5
+    # louvain_n_iter = 50
     # louvain_resolution = 1.0
     # louvain_use_weight = False
-    # optimize_min_size = 3
-    # optimize_size_ratio = 0.3
+    # optimize_min_size = 40
+    # optimize_size_ratio = 0.8
+    # optimize_merge_small = True
+    # use_grid_search = True
+    # max_iterations = 20
+
+    # g22 nmi better
+    # file_name = "g22"  
+    # input_dir = os.path.join('.', 'norm_dataset', file_name)
+    # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
+    # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
+    # embed_n_components = 50
+    # embed_use_adaptive = True  
+    # graph_similarity_threshold = 0.4
+    # graph_preserve_ratio = 0.7
+    # graph_max_preserved_edges = 1000
+    # graph_k_factor = 20  
+    # louvain_n_iter = 50
+    # louvain_resolution = 1.0
+    # louvain_use_weight = False
+    # optimize_min_size = 40
+    # optimize_size_ratio = 0.8
     # optimize_merge_small = True
     # use_grid_search = True
     # max_iterations = 20
@@ -204,7 +230,7 @@ if __name__ == "__main__":
             else:  # Sparse
                 param_grid = {
                     'n_components': [20, 30, 50, 70],
-                    'resolution': [0.5, 0.8, 1.0, 1.5]
+                    'resolution': [0.5, 0.8, 1.0, 1.2,1.5]
                 }
         elif V <= 10000: 
             param_grid = {
@@ -288,7 +314,7 @@ if __name__ == "__main__":
             composite_score = (
                 composite_score_weights['ARI'] * metrics['ARI'] +
                 composite_score_weights['NMI'] * metrics['NMI'] +
-                composite_score_weights['modularity_similarity_graph'] * metrics['modularity_similarity_graph']
+                composite_score_weights['modularity_original_graph'] * metrics['modularity_original_graph']
             )
             
             if composite_score > best_score:
@@ -309,7 +335,7 @@ if __name__ == "__main__":
     print(f"Parameters: n_components={best_result['params']['n_components']}, resolution={best_result['params']['resolution']}")
     print("Evaluation Metrics:")
     for metric, value in best_result['metrics'].items():
-        print(f"  {metric}: {value:.4f}")
+        print(f"  {metric}: {value:.6f}")
 
     
     """

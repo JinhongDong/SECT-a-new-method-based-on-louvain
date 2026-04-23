@@ -115,7 +115,7 @@ if __name__ == "__main__":
     kmeans_random_state = 42
     kmeans_n_init = 10
     in_channels = 1
-    
+
     # lol
     # file_name = "lol" 
     # input_dir = os.path.join('..', 'norm_dataset', file_name)
@@ -133,8 +133,8 @@ if __name__ == "__main__":
     # kmeans_n_init = 10
     # in_channels = 1
 
-    # g22
-    # file_name = "g22" 
+    # LFR_base
+    # file_name = "LFR_base" 
     # input_dir = os.path.join('..', 'norm_dataset', file_name)
     # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
     # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')

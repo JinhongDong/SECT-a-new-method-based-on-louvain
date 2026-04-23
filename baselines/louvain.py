@@ -56,7 +56,7 @@ if __name__ == "__main__":
     input_dir = os.path.join('..', 'norm_dataset', file_name)
     node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
     edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    resolution=1.0
+    
     
     # lol
     # file_name = "lol" 
@@ -64,8 +64,8 @@ if __name__ == "__main__":
     # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
     # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
 
-    # g22
-    # file_name = "g22" 
+    # LFR_base
+    # file_name = "LFR_base" 
     # input_dir = os.path.join('..', 'norm_dataset', file_name)
     # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
     # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
@@ -87,7 +87,8 @@ if __name__ == "__main__":
     # input_dir = os.path.join('..', 'norm_dataset', file_name)
     # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
     # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    
+
+    resolution=1.0
     G = load_graph_with_attributes(node_file_path, edge_file_path)
     player_names = sorted(G.nodes())
     true_labels = [G.nodes[n]['actual_community'] for n in player_names]

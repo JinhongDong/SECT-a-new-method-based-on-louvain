@@ -53,11 +53,11 @@ def best_map(true_labels, pred_labels):
 
 if __name__ == "__main__":
     # tree
-    file_name = "g22"  
+    file_name = "tree"  
     input_dir = os.path.join('..', 'norm_dataset', file_name)
     node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
     edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    walktrap_steps = 10           
+    walktrap_steps = 10          
     
     # lol
     # file_name = "lol" 
@@ -66,12 +66,12 @@ if __name__ == "__main__":
     # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
     # walktrap_steps = 5
     
-    # g22
-    # file_name = "g22" 
+    # LFR_base
+    # file_name = "LFR_base" 
     # input_dir = os.path.join('..', 'norm_dataset', file_name)
     # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
     # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    # walktrap_steps = 10
+    # walktrap_steps = 5
     
     # email-Eu-core
     # file_name = "email-Eu-core" 

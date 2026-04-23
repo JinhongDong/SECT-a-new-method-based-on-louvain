@@ -67,11 +67,6 @@ if __name__ == "__main__":
     # optimize_merge_small = True
     # use_grid_search = True
     # max_iterations = 20
-    # composite_score_weights = {
-    #    'ARI': 0.5,
-    #    'NMI': 0.3,
-    #    'modularity_original_graph': 0.2
-    # }
 
     # g22 ari better
     # file_name = "g22"  

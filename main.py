@@ -52,14 +52,14 @@ if __name__ == "__main__":
     # input_dir = os.path.join('.', 'norm_dataset', file_name)
     # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
     # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    # embed_n_components = 50
+    # embed_n_components = 30
     # embed_use_adaptive = True  
     # graph_similarity_threshold = 0.3
     # graph_preserve_ratio = 0.4
     # graph_max_preserved_edges = 500
     # graph_k_factor = 5  
     # louvain_n_iter = 5
-    # louvain_resolution = 1.0
+    # louvain_resolution = 2.0
     # louvain_use_weight = False
     # optimize_min_size = 3
     # optimize_size_ratio = 0.2

@@ -66,25 +66,20 @@ if __name__ == "__main__":
     # optimize_merge_small = True
     # use_grid_search = True
     # max_iterations = 20
-    # composite_score_weights = {
-    #    'ARI': 0.5,
-    #    'NMI': 0.3,
-    #    'modularity_original_graph': 0.2
-    # }
 
     # LFR_base
     # file_name = "LFR_base"  
     # input_dir = os.path.join('.', 'norm_dataset', file_name)
     # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
     # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    # embed_n_components = 20
+    # embed_n_components = 30
     # embed_use_adaptive = True  
-    # graph_similarity_threshold = 0.5
-    # graph_preserve_ratio = 0.8
+    # graph_similarity_threshold = 0.8
+    # graph_preserve_ratio = 0.7
     # graph_max_preserved_edges = 500
     # graph_k_factor = 10  
     # louvain_n_iter = 10
-    # louvain_resolution = 2.0
+    # louvain_resolution = 0.5
     # louvain_use_weight = False
     # optimize_min_size = 3
     # optimize_size_ratio = 0.2
@@ -97,14 +92,14 @@ if __name__ == "__main__":
     # input_dir = os.path.join('.', 'norm_dataset', file_name)
     # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
     # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    # embed_n_components = 50
+    # embed_n_components = 70
     # embed_use_adaptive = True  
     # graph_similarity_threshold = 0.3
     # graph_preserve_ratio = 0.4
     # graph_max_preserved_edges = 500
     # graph_k_factor = 10  
     # louvain_n_iter = 5
-    # louvain_resolution = 1.0
+    # louvain_resolution = 1.2
     # louvain_use_weight = False
     # optimize_min_size = 3
     # optimize_size_ratio = 0.2

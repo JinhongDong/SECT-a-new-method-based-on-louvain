@@ -71,7 +71,7 @@ if __name__ == "__main__":
     # input_dir = os.path.join('..', 'norm_dataset', file_name)
     # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
     # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    # walktrap_steps = 5
+    # walktrap_steps = 10
     
     # email-Eu-core
     # file_name = "email-Eu-core" 

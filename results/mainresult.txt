@@ -1,0 +1,223 @@
+tree Best Result:
+Parameters: n_components=20, resolution=2.0
+Evaluation Metrics:
+  NMI: 0.282861
+  ARI: 0.028800
+  modularity_original_graph: 0.785750
+  modularity_similarity_graph: 0.850121
+
+tree only 1 Best Result:
+Parameters: n_components=20, resolution=2.0
+Evaluation Metrics:
+  NMI: 0.246569
+  ARI: 0.017407
+  modularity_original_graph: 0.792300
+  modularity_similarity_graph: 0.792300
+
+tree 1+2 Best Result:
+Parameters: n_components=20, resolution=2.0
+Evaluation Metrics:
+  NMI: 0.235101
+  ARI: 0.011197
+  modularity_original_graph: 0.776800
+  modularity_similarity_graph: 0.852319
+
+tree only3 Best Result:
+Parameters: n_components=20, resolution=2.0
+Evaluation Metrics:
+  NMI: 0.241684
+  ARI: 0.014775
+  modularity_original_graph: 0.786650
+  modularity_similarity_graph: 0.786650
+
+tree louvain_result:   modularity: 0.794650, ARI: 0.020816, NMI: 0.223020
+
+----------------------------------------------------
+lol Best Result:
+Parameters: n_components=10, resolution=2.0
+Evaluation Metrics:
+  NMI: 0.978587
+  ARI: 0.956638
+  modularity_original_graph: 0.591029
+  modularity_similarity_graph: 0.709948
+
+lol only 1 Best Result:
+Parameters: n_components=10, resolution=0.5
+Evaluation Metrics:
+  NMI: 0.971773
+  ARI: 0.900547
+  modularity_original_graph: 0.644603
+  modularity_similarity_graph: 0.644603
+
+lol 1+2 Best Result:
+Parameters: n_components=10, resolution=2.0
+Evaluation Metrics:
+  NMI: 0.989407
+  ARI: 0.977922
+  modularity_original_graph: 0.593919
+  modularity_similarity_graph: 0.709948
+
+lol only3 Best Result:
+Parameters: n_components=10, resolution=2.0
+Evaluation Metrics:
+  NMI: 0.971773
+  ARI: 0.900547
+  modularity_original_graph: 0.644603
+  modularity_similarity_graph: 0.644603
+
+lol louvain_result:   modularity: 0.673256, ARI: 0.730678, NMI: 0.907198
+
+----------------------------------------------------
+
+LFR_base Best Result:
+Parameters: n_components=30, resolution=1.2
+Evaluation Metrics:
+  NMI: 1.000000
+  ARI: 1.000000
+  modularity_original_graph: 0.770175
+  modularity_similarity_graph: 0.862399
+
+LFR_base only 1 Best Result:
+Parameters: n_components=30, resolution=1.2
+Evaluation Metrics:
+  NMI: 0.993032
+  ARI: 0.991860
+  modularity_original_graph: 0.771348
+  modularity_similarity_graph: 0.771348
+
+LFR_base 1+2 Best Result:
+Parameters: n_components=30, resolution=1.2
+Evaluation Metrics:
+  NMI: 1.000000
+  ARI: 1.000000
+  modularity_original_graph: 0.770175
+  modularity_similarity_graph: 0.862399
+
+LFR_base only3 Best Result:
+Parameters: n_components=30, resolution=1.2
+Evaluation Metrics:
+  NMI: 0.993032
+  ARI: 0.991860
+  modularity_original_graph: 0.771348
+  modularity_similarity_graph: 0.771348
+
+LFR_base louvain_result:   modularity: 0.770175, ARI: 1.000000, NMI: 1.000000
+
+----------------------------------------------------
+
+email-Eu-core Best Result:
+Parameters: n_components=90, resolution=1.5
+Evaluation Metrics:
+  NMI: 0.707690
+  ARI: 0.562188
+  modularity_original_graph: 0.335781
+  modularity_similarity_graph: 0.799863
+
+email-Eu-core only 1 Best Result:
+Parameters: n_components=90, resolution=1.5
+Evaluation Metrics:
+  NMI: 0.661961
+  ARI: 0.502018
+  modularity_original_graph: 0.401017
+  modularity_similarity_graph: 0.401017
+
+email-Eu-core 1+2 Best Result:
+Parameters: n_components=90, resolution=1.5
+Evaluation Metrics:
+  NMI: 0.693054
+  ARI: 0.524844
+  modularity_original_graph: 0.342054
+  modularity_similarity_graph: 0.806031
+
+email-Eu-core only3 Best Result:
+Parameters: n_components=90, resolution=1.5
+Evaluation Metrics:
+  NMI: 0.650805
+  ARI: 0.489732
+  modularity_original_graph: 0.402425
+  modularity_similarity_graph: 0.402425
+
+email-Eu-core louvain_result:   modularity: 0.400351, ARI: 0.273985, NMI: 0.522205
+
+----------------------------------------------------
+
+facebook Best Result:
+Parameters: n_components=50, resolution=1.2
+Evaluation Metrics:
+  NMI: 0.611568
+  ARI: 0.461177
+  modularity_original_graph: 0.771531
+  modularity_similarity_graph: 0.924384
+
+facebook only 1 Best Result:
+Parameters: n_components=50, resolution=1.2
+Evaluation Metrics:
+  NMI: 0.563710
+  ARI: 0.404992
+  modularity_original_graph: 0.820612
+  modularity_similarity_graph: 0.820612
+
+facebook 1+2 Best Result:
+Parameters: n_components=50, resolution=1.2
+Evaluation Metrics:
+  NMI: 0.621722
+  ARI: 0.451404
+  modularity_original_graph: 0.771008
+  modularity_similarity_graph: 0.924495
+
+facebook only3 Best Result:
+Parameters: n_components=50, resolution=1.2
+Evaluation Metrics:
+  NMI: 0.551605
+  ARI: 0.399700
+  modularity_original_graph: 0.820496
+  modularity_similarity_graph: 0.820496
+
+facebook louvain_result:   modularity: 0.820632, ARI: 0.396612, NMI: 0.555968
+
+----------------------------------------------------
+youtube
+参数: n_components=256, resolution=0.6, similarity_threshold=0.5
+评估指标:
+  NMI: 0.621989
+  ARI: 0.112022
+  F1: 0.035241
+  ACC: 0.223861
+  modularity_原始图: 0.604953
+  modularity_相似图: 0.933305
+  EdgeKeep: 0.025733
+
+only 1
+参数: n_components=256, resolution=0.6, similarity_threshold=0.5
+评估指标:
+  NMI: 0.486583
+  ARI: 0.048889
+  F1: 0.149913
+  ACC: 0.200890
+  modularity_原始图: 0.613920
+  modularity_相似图: 0.784439
+  EdgeKeep: 0.567211
+
+1+2
+参数: n_components=256, resolution=0.6, similarity_threshold=0.5
+评估指标:
+  NMI: 0.697683
+  ARI: 0.116661
+  F1: 0.201865
+  ACC: 0.303091
+  modularity_原始图: 0.608625
+  modularity_相似图: 0.932530
+  EdgeKeep: 0.025733
+
+only 3
+参数: n_components=256, resolution=0.6, similarity_threshold=0.5
+评估指标:
+  NMI: 0.452504
+  ARI: 0.032887
+  F1: 0.016175
+  ACC: 0.206759
+  modularity_原始图: 0.594555
+  modularity_相似图: 0.611763
+  EdgeKeep: 1.000000
+
+com-youtube_largest_deliso louvain_result:   modularity: 0.631496, ARI: 0.054204, NMI: 0.481651

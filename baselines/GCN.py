@@ -1,284 +1,196 @@
 # gcn.py
 import os
-import numpy as np
-from scipy.optimize import linear_sum_assignment
-import networkx as nx
-import torch
-import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
 from torch_geometric.nn import GCNConv
+import torch
 from torch_geometric.data import Data
-from sklearn.metrics import (
-    normalized_mutual_info_score,
-    adjusted_rand_score
-)
-from sklearn.cluster import KMeans
-import igraph as ig
+import networkx as nx
+import numpy as np
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
+from torch_geometric.utils import from_networkx
+from networkx.algorithms.community.quality import modularity
+from torch_geometric.nn import GATConv, GCNConv
+from sklearn.model_selection import KFold
+import torch.nn as nn
+import copy
+from torch_geometric.loader import NeighborLoader
+from tqdm import tqdm
+
 
 # ---------------------------------------------------------------------------#
 # 0. Load network
 # ---------------------------------------------------------------------------#
-
-def load_graph_with_attributes(node_file_path, edge_file_path):
+def load_graph_with_attributes(node_file, edge_file):
     G = nx.Graph()
-    with open(node_file_path, 'r') as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) == 2:
-                node_id, comm = parts
-                G.add_node(int(node_id), actual_community=int(comm))
-    with open(edge_file_path, 'r') as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) == 2:
-                n1, n2 = parts
-                G.add_edge(int(n1), int(n2))
+    node_map = {}
+    node_id_counter = 0
+    with open(node_file, 'r') as node_file:
+        for line in node_file:
+            line = line.strip()
+            if line:
+                parts = line.split()
+                original_node_id = parts[0]
+                actual_community = int(parts[1])
+                if original_node_id not in node_map:
+                    node_map[original_node_id] = node_id_counter
+                    node_id_counter += 1
+                new_node_id = node_map[original_node_id]
+                G.add_node(new_node_id, label=original_node_id, actual_community=actual_community)
+    with open(edge_file, 'r') as edge_file:
+        for line in edge_file:
+            node_pair = line.strip().split()
+            src_new_id = node_map[node_pair[0]]
+            tgt_new_id = node_map[node_pair[1]]
+            if src_new_id != tgt_new_id: 
+                G.add_edge(src_new_id, tgt_new_id)
+    isolated_nodes = list(nx.isolates(G))
+    G.remove_nodes_from(isolated_nodes)
+    new_node_map = {old_id: new_id for new_id, old_id in enumerate(G.nodes())}
+    G = nx.relabel_nodes(G, new_node_map)
+
     return G
 
 # ---------------------------------------------------------------------------#
 # 1. GCN function
 # ---------------------------------------------------------------------------#
-
-class GCN(nn.Module):
-    def __init__(self, in_channels, hidden_channels, out_channels, dropout_rate):
+class GCN(torch.nn.Module):
+    def __init__(self, in_channels, out_channels, hidden_channels=8):
         super(GCN, self).__init__()
-        self.conv1 = GCNConv(in_channels, hidden_channels)
+        self.conv1 = GCNConv(in_channels, hidden_channels) 
         self.conv2 = GCNConv(hidden_channels, out_channels)
-        self.dropout_rate = dropout_rate
-        
+        self.dropout = torch.nn.Dropout(p=0.2)
+
     def forward(self, x, edge_index):
-        x = self.conv1(x, edge_index)
-        x = F.relu(x)
-        x = F.dropout(x, p=self.dropout_rate, training=self.training)
+        x = F.relu(self.conv1(x, edge_index))
+        x = F.dropout(x, p=0.2, training=self.training)
         x = self.conv2(x, edge_index)
         return x
+    
 
-def prepare_pyg_data(nx_graph, node_order):
-    """Convert NetworkX graph to PyTorch Geometric data"""
-    # Node features (using node degree as feature)
-    node_degrees = torch.tensor([d for _, d in nx_graph.degree(node_order)], dtype=torch.float).view(-1, 1)
-    
-    # Edge index
-    edge_list = []
-    for edge in nx_graph.edges():
-        u_idx = node_order.index(edge[0])
-        v_idx = node_order.index(edge[1])
-        edge_list.append([u_idx, v_idx])
-        edge_list.append([v_idx, u_idx])  # Undirected graph
-    
-    edge_index = torch.tensor(edge_list, dtype=torch.long).t().contiguous()
-    
-    # Get true labels
-    true_labels = [nx_graph.nodes[n]['actual_community'] for n in node_order]
-    y = torch.tensor(true_labels, dtype=torch.long)
-    
-    return Data(x=node_degrees, edge_index=edge_index, y=y)
+def five_fold_predict_batch(data, model_class, epochs=100, batch_size=1024, num_neighbors=[10, 10]):
+    device = data.x.device
+    num_nodes = data.num_nodes
+    kf = KFold(n_splits=5, shuffle=True, random_state=42)
+    all_preds = torch.full((num_nodes,), -1, dtype=torch.long, device=device)
 
-def best_map(true_labels, pred_labels):
-    true_labels = np.asarray(true_labels)
-    pred_labels = np.asarray(pred_labels)
-    
-    # Ensure labels are non-negative integers
-    true_labels = true_labels.astype(int)
-    pred_labels = pred_labels.astype(int)
-    
-    D = max(pred_labels.max(), true_labels.max()) + 1
-    w = np.zeros((D, D), dtype=np.int64)
-    
-    for i in range(pred_labels.size):
-        w[pred_labels[i], true_labels[i]] += 1
-    
-    row_ind, col_ind = linear_sum_assignment(w.max() - w)
-    mapping = {int(row): int(col) for row, col in zip(row_ind, col_ind)}
-    return np.array([mapping[label] for label in pred_labels])
+    for fold, (train_idx, test_idx) in enumerate(kf.split(np.arange(num_nodes))):
+        print(f"Fold {fold + 1}/5")
+        train_idx = torch.tensor(train_idx, dtype=torch.long, device=device)
+        test_idx = torch.tensor(test_idx, dtype=torch.long, device=device)
+
+        model = model_class(data.num_node_features, data.y.max().item()+1).to(device)
+        optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
+        criterion = torch.nn.CrossEntropyLoss()
+
+        # NeighborLoader for training
+        train_loader = NeighborLoader(
+            data,
+            input_nodes=train_idx,
+            num_neighbors=num_neighbors,
+            batch_size=batch_size,
+            shuffle=True
+        )
+
+        # Training loop
+        for epoch in tqdm(range(epochs), desc=f"Epoch (Fold {fold+1})"):
+            model.train()
+            for batch in train_loader:
+                batch = batch.to(device)
+                optimizer.zero_grad()
+                out = model(batch.x, batch.edge_index)
+                loss = criterion(out[:batch.batch_size], batch.y[:batch.batch_size])
+                loss.backward()
+                optimizer.step()
+
+        # NeighborLoader for inference
+        test_loader = NeighborLoader(
+            data,
+            input_nodes=test_idx,
+            num_neighbors=[-1], 
+            batch_size=batch_size,
+            shuffle=False
+        )
+        model.eval()
+        preds = []
+        node_ids = []
+        with torch.no_grad():
+            for batch in test_loader:
+                batch = batch.to(device)
+                out = model(batch.x, batch.edge_index)
+                pred = out[:batch.batch_size].argmax(dim=1)
+                preds.append(pred.cpu())
+                node_ids.append(batch.input_id.cpu())
+        preds = torch.cat(preds, dim=0)
+        node_ids = torch.cat(node_ids, dim=0)
+        all_preds[node_ids] = preds.to(device)
+
+    return all_preds
+
+def extract_hop_subgraph(G,cutoff=3):
+    # 1) find node with max degree
+    max_deg_node, max_deg = max(G.degree, key=lambda x: x[1])
+    lengths = nx.single_source_shortest_path_length(G, max_deg_node, cutoff=cutoff)
+    nodes_3hop = list(lengths.keys())
+    # 2) extract subgraph
+    G_sub = G.subgraph(nodes_3hop).copy()
+    new_node_map = {old_id: new_id for new_id, old_id in enumerate(G_sub.nodes())}
+    G_sub = nx.relabel_nodes(G_sub, new_node_map)
+    return G_sub
+
+def cal_q(G, pred_labels):
+    pred_dict = {}
+    for idx, label in enumerate(pred_labels):
+        pred_dict.setdefault(label.item(), []).append(idx)
+
+    q = modularity(G, pred_dict.values())
+    return q
 
 # ---------------------------------------------------------------------------#
 # 3. Example entry
 # ---------------------------------------------------------------------------#
-
 if __name__ == "__main__":
-
-    #tree
-    file_name = "tree"  
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+    file_name = 'tree'
+    # file_name = 'LFR_base'
+    # file_name = 'lol'
+    # file_name = 'email-Eu-core'
+    # file_name = 'facebook'
+    # file_name = 'com-youtube_largest_deliso'
     input_dir = os.path.join('..', 'norm_dataset', file_name)
-    node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
-    edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    gcn_hidden_channels = 16
-    gcn_dropout_rate = 0.2
-    gcn_out_channels = 5
-    training_epochs = 100
-    learning_rate = 0.001
-    optimizer_type = "Adam"
-    loss_function = "MSE"
-    n_clusters = None  
-    kmeans_random_state = 42
-    kmeans_n_init = 10
-    in_channels = 1
+    node_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
+    edge_path = os.path.join(input_dir, f'{file_name}_edges.txt')
 
-    # lol
-    # file_name = "lol" 
-    # input_dir = os.path.join('..', 'norm_dataset', file_name)
-    # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
-    # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    # gcn_hidden_channels = 16
-    # gcn_dropout_rate = 0.2
-    # gcn_out_channels = 10
-    # training_epochs = 100
-    # learning_rate = 0.001
-    # optimizer_type = "Adam"
-    # loss_function = "CrossEntropy"
-    # n_clusters = None  
-    # kmeans_random_state = 42
-    # kmeans_n_init = 10
-    # in_channels = 1
+    G = load_graph_with_attributes(node_path, edge_path)
+    
+    cutoff = 2
+    if cutoff is not None:
+        G = extract_hop_subgraph(G, cutoff=cutoff)
+    
+    labels = [G.nodes[n]["actual_community"] for n in G.nodes()]
 
-    # LFR_base
-    # file_name = "LFR_base" 
-    # input_dir = os.path.join('..', 'norm_dataset', file_name)
-    # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
-    # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    # gcn_hidden_channels = 16
-    # gcn_dropout_rate = 0.2
-    # gcn_out_channels = 10
-    # training_epochs = 100
-    # learning_rate = 0.001
-    # optimizer_type = "Adam"
-    # loss_function = "MSE"
-    # n_clusters = None  
-    # kmeans_random_state = 42
-    # kmeans_n_init = 10
-    # in_channels = 1
+    data = from_networkx(G)
     
-    # email-Eu-core
-    # file_name = "email-Eu-core" 
-    # input_dir = os.path.join('..', 'norm_dataset', file_name)
-    # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
-    # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    # gcn_hidden_channels = 16
-    # gcn_dropout_rate = 0.2
-    # gcn_out_channels = 20
-    # training_epochs = 100
-    # learning_rate = 0.001
-    # optimizer_type = "Adam"
-    # loss_function = "MSE"
-    # n_clusters = None  
-    # kmeans_random_state = 42
-    # kmeans_n_init = 10
-    # in_channels = 1
+    for key in list(data.keys()):
+        if key not in ['x', 'y', 'edge_index']:
+            del data[key]
+    
+    data.y = torch.tensor(labels, dtype=torch.long)  
+    node_feat = [G.degree(n) for n in G.nodes()]
+    data.x = torch.tensor(node_feat, dtype=torch.float32).unsqueeze(1)  
 
-    # facebook
-    # file_name = "facebook" 
-    # input_dir = os.path.join('..', 'norm_dataset', file_name)
-    # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
-    # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    # gcn_hidden_channels = 128
-    # gcn_dropout_rate = 0.2
-    # gcn_out_channels = 30
-    # training_epochs = 100
-    # learning_rate = 0.001
-    # optimizer_type = "Adam"
-    # loss_function = "MSE"
-    # n_clusters = None  
-    # kmeans_random_state = 42
-    # kmeans_n_init = 10
-    # in_channels = 1
+    data.x = data.x.to(device)
+    data.y = data.y.to(device)
+    data.edge_index = data.edge_index.to(device)
+  
+    gcn_preds = five_fold_predict_batch(copy.deepcopy(data), GCN, batch_size=1024)
 
-    # com-youtube_largest_deliso
-    # file_name = "com-youtube_largest_deliso" 
-    # input_dir = os.path.join('..', 'norm_dataset', file_name)
-    # node_file_path = os.path.join(input_dir, f'{file_name}_nodes.txt')
-    # edge_file_path = os.path.join(input_dir, f'{file_name}_edges.txt')
-    # gcn_hidden_channels = 64
-    # gcn_dropout_rate = 0.2
-    # gcn_out_channels = 32
-    # training_epochs = 100
-    # learning_rate = 0.001
-    # optimizer_type = "Adam"
-    # loss_function = "MSE"
-    # n_clusters = None  
-    # kmeans_random_state = 42
-    # kmeans_n_init = 10
-    # in_channels = 1
-
+    true_labels_np = data.y.cpu().numpy()
+    gcn_preds_np = gcn_preds.cpu().numpy()
     
-    G = load_graph_with_attributes(node_file_path, edge_file_path)
-    player_names = sorted(G.nodes())
-    true_labels = [G.nodes[n]['actual_community'] for n in player_names]
+    gcn_q = cal_q(G, gcn_preds_np)
+    gcn_ari = adjusted_rand_score(true_labels_np, gcn_preds_np)
+    gcn_nmi = normalized_mutual_info_score(true_labels_np, gcn_preds_np)
     
-    if n_clusters is None:
-        n_clusters = len(set(true_labels))
-    
-    data = prepare_pyg_data(G, player_names)
-    
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Using device: {device}")
-    
-    
-    model = GCN(in_channels, gcn_hidden_channels, gcn_out_channels, gcn_dropout_rate).to(device)
-    
-    if optimizer_type == "Adam":
-        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    elif optimizer_type == "SGD":
-        optimizer = optim.SGD(model.parameters(), lr=learning_rate)
-    else:
-        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    
-    # Prepare training data
-    x = data.x.to(device)
-    edge_index = data.edge_index.to(device)
-    y = data.y.to(device)
-    # Train GCN
-    model.train()
-    losses = []
-    for epoch in range(training_epochs):
-        optimizer.zero_grad()
-        
-        embeddings = model(x, edge_index)
-        
-        # Loss function
-        if loss_function == "MSE":
-            loss = F.mse_loss(embeddings, torch.zeros_like(embeddings))
-        elif loss_function == "CrossEntropy":
-            loss = F.cross_entropy(embeddings, y)
-        else:
-            loss = F.mse_loss(embeddings, torch.zeros_like(embeddings))
-        
-        loss.backward()
-        optimizer.step()
-        losses.append(loss.item())
-    
-    # Get node embeddings
-    model.eval()
-    with torch.no_grad():
-        embeddings = model(x, edge_index)
-        embeddings_np = embeddings.cpu().numpy()
-    
-    # Perform clustering using K-means
-    kmeans = KMeans(n_clusters=n_clusters, random_state=kmeans_random_state, n_init=kmeans_n_init)
-    pred_labels = kmeans.fit_predict(embeddings_np)
-    
-    # Label alignment
-    pred_labels = best_map(true_labels, pred_labels)
-    
-    # Calculate modularity
-    n_nodes = len(player_names)
-    node_id_to_idx = {node_id: idx for idx, node_id in enumerate(player_names)}
-    
-    ig_G = ig.Graph(directed=False)
-    ig_G.add_vertices(n_nodes)
-    
-    edges = []
-    for u, v in G.edges():
-        u_idx = node_id_to_idx[u]
-        v_idx = node_id_to_idx[v]
-        edges.append((u_idx, v_idx))
-    
-    if edges:
-        ig_G.add_edges(edges)
-    
-    modularity_score = ig_G.modularity(pred_labels)
-    ari = adjusted_rand_score(true_labels, pred_labels)
-    nmi = normalized_mutual_info_score(true_labels, pred_labels)
-    
-    print(f"{file_name} GCN_result: Modularity: {modularity_score:.6f}, ARI: {ari:.6f}, NMI: {nmi:.6f}")
+    print(f"{file_name} GCN_result: Modularity: {gcn_q:.6f}, ARI: {gcn_ari:.6f}, NMI: {gcn_nmi:.6f}")

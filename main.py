@@ -40,7 +40,6 @@ if __name__ == "__main__":
     optimize_size_ratio = 0.3
     optimize_merge_small = True
     use_grid_search = True
-    max_iterations = 20
 
     # lol
     # file_name = "lol"  
@@ -60,7 +59,6 @@ if __name__ == "__main__":
     # optimize_size_ratio = 0.2
     # optimize_merge_small = True
     # use_grid_search = True
-    # max_iterations = 20
 
     # LFR_base
     # file_name = "LFR_base"  
@@ -80,7 +78,6 @@ if __name__ == "__main__":
     # optimize_size_ratio = 0.2
     # optimize_merge_small = True
     # use_grid_search = True
-    # max_iterations = 20
 
     # email-Eu-core
     # file_name = "email-Eu-core"  
@@ -100,7 +97,6 @@ if __name__ == "__main__":
     # optimize_size_ratio = 0.2
     # optimize_merge_small = True
     # use_grid_search = True
-    # max_iterations = 20
 
     # facebook
     # file_name = "facebook"  
@@ -120,7 +116,6 @@ if __name__ == "__main__":
     # optimize_size_ratio = 0.2
     # optimize_merge_small = True
     # use_grid_search = True
-    # max_iterations = 5
 
     # com-youtube_largest_deliso
     # file_name = "com-youtube_largest_deliso"  
@@ -140,7 +135,6 @@ if __name__ == "__main__":
     # optimize_size_ratio = 0.4
     # optimize_merge_small = True
     # use_grid_search = True
-    # max_iterations = 10
 
     composite_score_weights = {
         'ARI': 0.5,

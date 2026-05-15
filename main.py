@@ -234,18 +234,12 @@ if __name__ == "__main__":
             except:
                 modularity_original_graph = 0.0
                 modularity_similarity_graph = 0.0
-                
-            # Calculate edge retention rate
-            orig_edges = set(G.edges())
-            new_edges = set(G_emb.edges())
-            edge_keep = len(orig_edges & new_edges) / len(orig_edges) if orig_edges else 0.0
             
             metrics = {
                 'NMI': nmi,
                 'ARI': ari,
                 'modularity_original_graph': modularity_original_graph,
                 'modularity_similarity_graph': modularity_similarity_graph,
-                'EdgeKeep': edge_keep
             }
             
             # Use composite score to select best result
